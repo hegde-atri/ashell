@@ -9,3 +9,18 @@ A REPL is:
 
 * List of stuff to do
 ** TODO Abstract out the input handling.
+
+#+begin_src rust
+println!("Hello world");
+#+end_src
+
+#+RESULTS:
+: Hello world
+
+
+#+begin_src python
+return "HELLO"
+#+end_src
+
+#+RESULTS:
+: HELLO

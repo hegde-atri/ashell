@@ -1,6 +1,7 @@
 use is_executable::is_executable;
 use std::{
     io::{self, Write, stdin},
+    path::PathBuf,
     str::FromStr,
 };
 use strum_macros::EnumString;
@@ -24,11 +25,15 @@ fn main() {
         // Parse input
         let (cmd, args) = parse_input(input.clone());
         // Eval input
-        match Command::from_str(cmd.as_str()) {
-            Ok(Command::Echo) => Command::handle_echo(args),
-            Ok(Command::Exit) => Command::handle_exit(),
-            Ok(Command::Type) => Command::handle_type(args),
-            _ => Command::handle_not_found(cmd),
+        
+        // If we hit enter without nothing in it, it should skip.
+        if !cmd.is_empty() {
+            match Command::from_str(cmd.as_str()) {
+                Ok(Command::Echo) => Command::handle_echo(args),
+                Ok(Command::Exit) => Command::handle_exit(),
+                Ok(Command::Type) => Command::handle_type(args),
+                _ => Command::exec(cmd, args),
+            }
         }
     }
 }
@@ -50,17 +55,13 @@ enum Command {
     Echo,
     #[strum(serialize = "type")]
     Type,
-    #[strum(disabled)]
-    NotFound,
+    // #[strum(disabled)]
+    // NotFound,
 }
 
 impl Command {
     pub fn handle_exit() {
         std::process::exit(0);
-    }
-
-    pub fn handle_not_found(cmd: String) {
-        println!("{}: command not found", cmd);
     }
 
     pub fn handle_echo(args: Vec<String>) {
@@ -72,20 +73,39 @@ impl Command {
         match Command::from_str(cmd.as_str()) {
             Ok(cmd) => println!("{} is a shell builtin", cmd),
             Err(_) => {
-                Self::find_executable(&cmd);
+                // If not builtin, try to see if it exists on path
+                match Self::find_executable(&cmd) {
+                    Some(path) => println!("{} is {}", cmd, path.display()),
+                    None => println!("{cmd}: not found"),
+                }
             }
         }
     }
 
-    fn find_executable(cmd: &str) {
+    pub fn exec(cmd: String, args: Vec<String>) {
+        match Self::find_executable(&cmd) {
+            Some(path) => {
+                let output = std::process::Command::new(path)
+                    .args(args)
+                    .output()
+                    .expect("failed to execute process");
+                println!(
+                    "{:?}",
+                    String::from_utf8(output.stdout).expect("Failed to parse output")
+                );
+            }
+            None => println!("{cmd}: not found"),
+        }
+    }
+
+    fn find_executable(cmd: &str) -> Option<PathBuf> {
         let path_env = std::env::var("PATH").expect("Could not find $PATH");
         for mut path in std::env::split_paths(&path_env) {
             path.push(cmd);
             if path.exists() && is_executable(&path) {
-                println!("{} is {}", cmd, path.display());
-                return;
+                return Some(path);
             }
         }
-        println!("{cmd}: not found");
+        return None;
     }
 }

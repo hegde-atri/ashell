@@ -1,5 +1,6 @@
-use std::{io::{self, Write, stdin}, str::FromStr};
+use std::{io::{self, Write, stdin}, path::PathBuf, str::FromStr};
 
+use is_executable::is_executable;
 use strum_macros::EnumString;
 
 fn main() {
@@ -69,7 +70,21 @@ impl Command {
     let cmd = args.join(" ");
     match Command::from_str(cmd.as_str()) {
       Ok(cmd) => println!("{} is a shell builtin", cmd),
-      Err(_) => println!("{}: not found", cmd),
+      Err(_) => {
+        Self::find_executable(&cmd);
+      },
     }
+  }
+
+  fn find_executable(cmd: &str){
+    let path_env = std::env::var("PATH").expect("Could not find $PATH");
+    for mut path in std::env::split_paths(&path_env){
+      path.push(cmd);
+      if path.exists() && is_executable(&path) {
+        println!("{} is {}", cmd, path.display());
+        break;
+      }
+    }
+    println!("{cmd}: not found");
   }
 }

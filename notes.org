@@ -6,6 +6,8 @@ A REPL is:
    2. Eval
    3. Print
 
+* General
+is_executable does not help with time-of-check to time-of-use races (TOCTOU).
 
 * List of stuff to do
 ** DONE Abstract out the input handling.

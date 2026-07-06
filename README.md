@@ -1,3 +1,17 @@
+This is the repo in which I learn how to build a shell with a series of tests as part of a guided project by Code Crafters.
+
+> This project is done to deepen my understanding in basic system design and rust.
+
+In this project I was able to learn:
+- How a shell reads, parses, and runs commands
+- What a REPL is and how it works under the hood
+- How commands like echo run, vs. external ones
+- What $PATH means and its role in identifying executable files
+- How running commands require spawning OS processes and exits
+- How to parse complex syntax
+- Process Management
+- How to maintain and refactor the project as it grows.
+
 [![progress-banner](https://backend.codecrafters.io/progress/shell/046b78d7-b831-406a-a653-31ae749eb450)](https://app.codecrafters.io/users/hegde-atri?r=2qF)
 
 This is a starting point for Rust solutions to the

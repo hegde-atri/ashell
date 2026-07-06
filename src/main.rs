@@ -32,6 +32,7 @@ fn main() {
                 Ok(Command::Echo) => Command::handle_echo(args),
                 Ok(Command::Exit) => Command::handle_exit(),
                 Ok(Command::Type) => Command::handle_type(args),
+                Ok(Command::Pwd) => Command::handle_pwd(),
                 _ => Command::exec(cmd, args),
             }
         }
@@ -55,6 +56,8 @@ enum Command {
     Echo,
     #[strum(serialize = "type")]
     Type,
+    #[strum(serialize = "pwd")]
+    Pwd,
     // #[strum(disabled)]
     // NotFound,
 }
@@ -68,6 +71,10 @@ impl Command {
         println!("{}", args.join(" "));
     }
 
+    pub fn handle_pwd(){
+        println!("{}", std::env::current_dir().expect("Could not get current directory").display());
+    }
+    
     pub fn handle_type(args: Vec<String>) {
         let cmd = args.join(" ");
         match Command::from_str(cmd.as_str()) {
@@ -109,4 +116,5 @@ impl Command {
         }
         return None;
     }
+
 }

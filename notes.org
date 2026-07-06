@@ -1,0 +1,4 @@
+#+title: Notes
+
+* List of stuff to do
+** TODO Abstract out the input handling.

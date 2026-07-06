@@ -71,8 +71,16 @@ impl Command {
         println!("{}", args.join(" "));
     }
 
-    pub fn handle_pwd(){
+    pub fn handle_pwd() {
         println!("{}", std::env::current_dir().expect("Could not get current directory").display());
+    }
+
+    pub fn handle_cd(args: Vec<String>) {
+        // Handle absolute dirs
+        // Handle relative dirs
+        // Handle ~
+        let mut pwd = std::env::current_dir().expect("Could not get current directory");
+        pwd.push(args[0].clone());
     }
     
     pub fn handle_type(args: Vec<String>) {

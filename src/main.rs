@@ -69,7 +69,7 @@ impl Command {
     let cmd = args.join(" ");
     match Command::from_str(cmd.as_str()) {
       Ok(cmd) => println!("{} is a shell builtin", cmd),
-      Err(_) => Command::handle_not_found(cmd),
+      Err(_) => println!("{}: not found", cmd),
     }
   }
 }

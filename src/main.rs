@@ -85,14 +85,15 @@ impl Command {
     pub fn exec(cmd: String, args: Vec<String>) {
         match Self::find_executable(&cmd) {
             Some(path) => {
-                let output = std::process::Command::new(path)
+                let raw_output = std::process::Command::new(path)
                     .args(args)
                     .output()
                     .expect("failed to execute process");
-                println!(
-                    "{:?}",
-                    String::from_utf8(output.stdout).expect("Failed to parse output")
-                );
+                
+                let string_output = String::from_utf8(raw_output.stdout).expect("Failed to parse output");
+                for line in string_output.trim().split("\n") {
+                    println!("{line}");
+                }
             }
             None => println!("{cmd}: not found"),
         }

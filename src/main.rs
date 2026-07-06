@@ -84,8 +84,8 @@ impl Command {
 
     pub fn exec(cmd: String, args: Vec<String>) {
         match Self::find_executable(&cmd) {
-            Some(path) => {
-                let raw_output = std::process::Command::new(path)
+            Some(_) => {
+                let raw_output = std::process::Command::new(cmd)
                     .args(args)
                     .output()
                     .expect("failed to execute process");

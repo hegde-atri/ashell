@@ -1,6 +1,8 @@
-use std::{io::{self, Write, stdin}, path::PathBuf, str::FromStr};
-
 use is_executable::is_executable;
+use std::{
+    io::{self, Write, stdin},
+    str::FromStr,
+};
 use strum_macros::EnumString;
 
 fn main() {
@@ -23,68 +25,67 @@ fn main() {
         let (cmd, args) = parse_input(input.clone());
         // Eval input
         match Command::from_str(cmd.as_str()) {
-          Ok(Command::Echo) => Command::handle_echo(args),
-          Ok(Command::Exit) => Command::handle_exit(),
-          Ok(Command::Type) => Command::handle_type(args),
-          _ => Command::handle_not_found(cmd),
+            Ok(Command::Echo) => Command::handle_echo(args),
+            Ok(Command::Exit) => Command::handle_exit(),
+            Ok(Command::Type) => Command::handle_type(args),
+            _ => Command::handle_not_found(cmd),
         }
     }
 }
 
-
 /// Parses input into command, its arg + args
-fn parse_input(input: String) -> (String, Vec<String>){
+fn parse_input(input: String) -> (String, Vec<String>) {
     let input_as_vec: Vec<String> = input.trim().split(" ").map(|e| e.to_string()).collect();
     let cmd: String = input_as_vec[0].to_string();
     let args: Vec<String> = input_as_vec[1..].to_vec();
 
-    return (cmd, args)
+    return (cmd, args);
 }
 
 #[derive(Debug, EnumString, strum_macros::Display)]
 enum Command {
-  #[strum(serialize = "exit")]
-  Exit,
-  #[strum(serialize = "echo")]
-  Echo,
-  #[strum(serialize = "type")]
-  Type,
-  #[strum(disabled)]
-  NotFound,
+    #[strum(serialize = "exit")]
+    Exit,
+    #[strum(serialize = "echo")]
+    Echo,
+    #[strum(serialize = "type")]
+    Type,
+    #[strum(disabled)]
+    NotFound,
 }
 
 impl Command {
-  pub fn handle_exit() {
-    std::process::exit(0);
-  }
-  
-  pub fn handle_not_found(cmd: String){
-    println!("{}: command not found", cmd);
-  }
-  
-  pub fn handle_echo(args: Vec<String>){
-    println!("{}", args.join(" "));
-  }
-  
-  pub fn handle_type(args: Vec<String>){
-    let cmd = args.join(" ");
-    match Command::from_str(cmd.as_str()) {
-      Ok(cmd) => println!("{} is a shell builtin", cmd),
-      Err(_) => {
-        Self::find_executable(&cmd);
-      },
+    pub fn handle_exit() {
+        std::process::exit(0);
     }
-  }
 
-  fn find_executable(cmd: &str){
-    let path_env = std::env::var("PATH").expect("Could not find $PATH");
-    for mut path in std::env::split_paths(&path_env){
-      path.push(cmd);
-      if path.exists() && is_executable(&path) {
-        println!("{} is {}", cmd, path.display());
-        break;
-      }
+    pub fn handle_not_found(cmd: String) {
+        println!("{}: command not found", cmd);
     }
-    println!("{cmd}: not found");
-  }
+
+    pub fn handle_echo(args: Vec<String>) {
+        println!("{}", args.join(" "));
+    }
+
+    pub fn handle_type(args: Vec<String>) {
+        let cmd = args.join(" ");
+        match Command::from_str(cmd.as_str()) {
+            Ok(cmd) => println!("{} is a shell builtin", cmd),
+            Err(_) => {
+                Self::find_executable(&cmd);
+            }
+        }
+    }
+
+    fn find_executable(cmd: &str) {
+        let path_env = std::env::var("PATH").expect("Could not find $PATH");
+        for mut path in std::env::split_paths(&path_env) {
+            path.push(cmd);
+            if path.exists() && is_executable(&path) {
+                println!("{} is {}", cmd, path.display());
+                return;
+            }
+        }
+        println!("{cmd}: not found");
+    }
 }

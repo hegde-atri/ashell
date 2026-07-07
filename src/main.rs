@@ -95,6 +95,14 @@ impl Command {
                return;
            }
        }
+       // Handle "~"
+       else if user_path.eq("~"){
+           let home_path = std::env::var("HOME").expect("Could not find $HOME");
+           match std::env::set_current_dir(home_path) {
+               Ok(_) => {},
+               Err(_) => println!("cd: {}: No such file or directory", args[0]),
+           }
+       }
         // Handle absolute dirs
         else if user_path.starts_with("/") {
             match std::env::set_current_dir(user_path) {
@@ -120,7 +128,7 @@ impl Command {
                 Err(_) => println!("cd: {}: No such file or directory", args[0]),
             }
         }
-        // Handle ~
+        // Handle ~/
         else if user_path.starts_with("~/") {
             let home_path = std::env::var("HOME").expect("Could not find $HOME");
             user_path = user_path.replacen("~/", home_path.as_str(), 1);
@@ -137,8 +145,6 @@ impl Command {
                 Err(err) => println!("Failed to change directory: {}", err),
             }
         }
-        
-        
     }
     
     pub fn handle_type(args: Vec<String>) {

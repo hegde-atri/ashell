@@ -46,7 +46,7 @@ fn parse_input(input: String) -> (String, Vec<String>) {
     let cmd: String = input_as_vec[0].to_string();
     let args: Vec<String> = input_as_vec[1..].to_vec();
 
-    return (cmd, args);
+    (cmd, args)
 }
 
 #[derive(Debug, EnumString, strum_macros::Display)]
@@ -92,7 +92,6 @@ impl Command {
                }
            } else {
                println!("Failed to change directory: Folder does not exist");
-               return;
            }
        }
        // Handle "~"
@@ -186,7 +185,7 @@ impl Command {
                 return Some(path);
             }
         }
-        return None;
+        None
     }
 
 }

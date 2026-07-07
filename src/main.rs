@@ -79,11 +79,17 @@ impl Command {
     }
 
     pub fn handle_cd(args: Vec<String>) {
-        let path = Path::new(args[0].as_str());
+        let mut user_path = args[0].clone();
+        
+        if user_path.starts_with("~") {
+            let home_path = std::env::var("HOME").expect("Could not find $HOME");
+            user_path = user_path.replacen("~", home_path.as_str(), 1);
+        }
+        let path = Path::new(user_path.as_str());
         
         match std::env::set_current_dir(path) {
             Ok(_) => {},
-            Err(_) => println!("cd: {}: No such file or directory", args[0]),
+            Err(_) => println!("cd: {}: No such file or directory", path.display()),
         }
     }
     

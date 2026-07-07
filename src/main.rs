@@ -88,7 +88,7 @@ impl Command {
                user_path = user_path.replacen("../", "", 1);
                match std::env::set_current_dir(user_path) {
                    Ok(_) => {},
-                   Err(err) => println!("Failed to change directory: {}", err),
+                   Err(_) => println!("cd: {}: No such file or directory", args[0]),
                }
            } else {
                println!("Failed to change directory: Folder does not exist");
@@ -99,7 +99,7 @@ impl Command {
         else if user_path.starts_with("/") {
             match std::env::set_current_dir(user_path) {
                 Ok(_) => {},
-                Err(err) => println!("Failed to change directory: {}", err),
+                Err(_) => println!("cd: {}: No such file or directory", args[0]),
             }
         }
         // Handle relative dirs
@@ -110,14 +110,14 @@ impl Command {
                     // Handle ".." at the end.
                     // Example ../..
                 } else {
-                    println!("Failed to change directory: Folder does not exist");
+                    println!("cd: {}: No such file or directory", args[0]);
                     return;
                 }
             }
             pwd.push(user_path);
             match std::env::set_current_dir(pwd) {
                 Ok(_) => {},
-                Err(err) => println!("Failed to change directory: {}", err),
+                Err(_) => println!("cd: {}: No such file or directory", args[0]),
             }
         }
         // Handle ~
@@ -127,7 +127,7 @@ impl Command {
             
             match std::env::set_current_dir(user_path) {
                 Ok(_) => {},
-                Err(err) => println!("Failed to change directory: {}", err),
+                Err(_) => println!("cd: {}: No such file or directory", args[0]),
             }
         } else {
             // Handle as "./"

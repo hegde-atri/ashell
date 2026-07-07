@@ -1,7 +1,7 @@
 use is_executable::is_executable;
 use std::{
     io::{self, Write, stdin},
-    path::PathBuf,
+    path::{Path, PathBuf},
     str::FromStr,
 };
 use strum_macros::EnumString;
@@ -79,70 +79,11 @@ impl Command {
     }
 
     pub fn handle_cd(args: Vec<String>) {
-        let mut user_path = args[0].clone();
-        let mut pwd = std::env::current_dir().expect("Could not get current directory");
-       
-        // Handle ".."
-       if user_path.eq("..") {
-           if pwd.pop() {
-               user_path = user_path.replacen("../", "", 1);
-               match std::env::set_current_dir(user_path) {
-                   Ok(_) => {},
-                   Err(_) => println!("cd: {}: No such file or directory", args[0]),
-               }
-           } else {
-               println!("Failed to change directory: Folder does not exist");
-           }
-       }
-       // Handle "~"
-       else if user_path.eq("~"){
-           let home_path = std::env::var("HOME").expect("Could not find $HOME");
-           match std::env::set_current_dir(home_path) {
-               Ok(_) => {},
-               Err(_) => println!("cd: {}: No such file or directory", args[0]),
-           }
-       }
-        // Handle absolute dirs
-        else if user_path.starts_with("/") {
-            match std::env::set_current_dir(user_path) {
-                Ok(_) => {},
-                Err(_) => println!("cd: {}: No such file or directory", args[0]),
-            }
-        }
-        // Handle relative dirs
-        else if user_path.starts_with("../") {
-            while user_path.starts_with("../") {
-                if pwd.pop() {
-                    user_path = user_path.replacen("../", "", 1).clone();
-                    // Handle ".." at the end.
-                    // Example ../..
-                } else {
-                    println!("cd: {}: No such file or directory", args[0]);
-                    return;
-                }
-            }
-            pwd.push(user_path);
-            match std::env::set_current_dir(pwd) {
-                Ok(_) => {},
-                Err(_) => println!("cd: {}: No such file or directory", args[0]),
-            }
-        }
-        // Handle ~/
-        else if user_path.starts_with("~/") {
-            let home_path = std::env::var("HOME").expect("Could not find $HOME");
-            user_path = user_path.replacen("~/", home_path.as_str(), 1);
-            
-            match std::env::set_current_dir(user_path) {
-                Ok(_) => {},
-                Err(_) => println!("cd: {}: No such file or directory", args[0]),
-            }
-        } else {
-            // Handle as "./"
-            pwd.push(args[0].clone());
-            match std::env::set_current_dir(pwd) {
-                Ok(_) => {},
-                Err(err) => println!("Failed to change directory: {}", err),
-            }
+        let path = Path::new(args[0].as_str());
+        
+        match std::env::set_current_dir(path) {
+            Ok(_) => {},
+            Err(_) => println!("cd: {}: No such file or directory", args[0]),
         }
     }
     
@@ -187,5 +128,4 @@ impl Command {
         }
         None
     }
-
 }

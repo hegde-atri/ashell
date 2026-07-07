@@ -33,6 +33,7 @@ fn main() {
                 Ok(Command::Exit) => Command::handle_exit(),
                 Ok(Command::Type) => Command::handle_type(args),
                 Ok(Command::Pwd) => Command::handle_pwd(),
+                Ok(Command::Cd) => Command::handle_cd(args),
                 _ => Command::exec(cmd, args),
             }
         }
@@ -58,6 +59,8 @@ enum Command {
     Type,
     #[strum(serialize = "pwd")]
     Pwd,
+    #[strum(serialize = "cd")]
+    Cd,
     // #[strum(disabled)]
     // NotFound,
 }
@@ -76,11 +79,66 @@ impl Command {
     }
 
     pub fn handle_cd(args: Vec<String>) {
-        // Handle absolute dirs
-        // Handle relative dirs
-        // Handle ~
+        let mut user_path = args[0].clone();
         let mut pwd = std::env::current_dir().expect("Could not get current directory");
-        pwd.push(args[0].clone());
+       
+        // Handle ".."
+       if user_path.eq("..") {
+           if pwd.pop() {
+               user_path = user_path.replacen("../", "", 1);
+               match std::env::set_current_dir(user_path) {
+                   Ok(_) => {},
+                   Err(err) => println!("Failed to change directory: {}", err),
+               }
+           } else {
+               println!("Failed to change directory: Folder does not exist");
+               return;
+           }
+       }
+        // Handle absolute dirs
+        else if user_path.starts_with("/") {
+            match std::env::set_current_dir(user_path) {
+                Ok(_) => {},
+                Err(err) => println!("Failed to change directory: {}", err),
+            }
+        }
+        // Handle relative dirs
+        else if user_path.starts_with("../") {
+            while user_path.starts_with("../") {
+                if pwd.pop() {
+                    user_path = user_path.replacen("../", "", 1).clone();
+                    // Handle ".." at the end.
+                    // Example ../..
+                } else {
+                    println!("Failed to change directory: Folder does not exist");
+                    return;
+                }
+            }
+            pwd.push(user_path);
+            match std::env::set_current_dir(pwd) {
+                Ok(_) => {},
+                Err(err) => println!("Failed to change directory: {}", err),
+            }
+        }
+        // Handle ~
+        else if user_path.starts_with("~/") {
+            let home_path = std::env::var("HOME").expect("Could not find $HOME");
+            user_path = user_path.replacen("~/", home_path.as_str(), 1);
+            
+            match std::env::set_current_dir(user_path) {
+                Ok(_) => {},
+                Err(err) => println!("Failed to change directory: {}", err),
+            }
+        } else {
+            // Handle as "./"
+            pwd.push(args[0].clone());
+            match std::env::set_current_dir(pwd) {
+                Ok(_) => {},
+                Err(err) => println!("Failed to change directory: {}", err),
+            }
+        }
+        
+        
     }
     
     pub fn handle_type(args: Vec<String>) {

@@ -25,7 +25,7 @@ fn main() {
         // Parse input
         let (cmd, args) = parse_input(input.clone());
         // Eval input
-        
+
         // If we hit enter without nothing in it, it should skip.
         if !cmd.is_empty() {
             match Command::from_str(cmd.as_str()) {
@@ -75,24 +75,29 @@ impl Command {
     }
 
     pub fn handle_pwd() {
-        println!("{}", std::env::current_dir().expect("Could not get current directory").display());
+        println!(
+            "{}",
+            std::env::current_dir()
+                .expect("Could not get current directory")
+                .display()
+        );
     }
 
     pub fn handle_cd(args: Vec<String>) {
         let mut user_path = args[0].clone();
-        
+
         if user_path.starts_with("~") {
             let home_path = std::env::var("HOME").expect("Could not find $HOME");
             user_path = user_path.replacen("~", home_path.as_str(), 1);
         }
         let path = Path::new(user_path.as_str());
-        
+
         match std::env::set_current_dir(path) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(_) => println!("cd: {}: No such file or directory", path.display()),
         }
     }
-    
+
     pub fn handle_type(args: Vec<String>) {
         let cmd = args.join(" ");
         match Command::from_str(cmd.as_str()) {
@@ -114,8 +119,9 @@ impl Command {
                     .args(args)
                     .output()
                     .expect("failed to execute process");
-                
-                let string_output = String::from_utf8(raw_output.stdout).expect("Failed to parse output");
+
+                let string_output =
+                    String::from_utf8(raw_output.stdout).expect("Failed to parse output");
                 for line in string_output.trim().split("\n") {
                     println!("{line}");
                 }

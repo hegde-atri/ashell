@@ -9,6 +9,11 @@ A REPL is:
 * General
 is_executable does not help with time-of-check to time-of-use races (TOCTOU).
 
+* Quote Parsing
+** ' preserves the literal value of all characters
+** " preserves most characters but allow certain characters to be interpreted
+Like =$= and =\=.
+
 * List of stuff to do
 ** DONE Abstract out the input handling.
 ** DONE Use Enums to identify command
